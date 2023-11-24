@@ -97,23 +97,4 @@ struct Node
   Point pt;
 };
 
-struct Element
-{
-  int eleId() { return ele_id; }
-  void setEleId(int id) { ele_id = id; }
-  Node atNode(int pos) { return nodeList.at(pos); }
-  Point getCentroid() { return centroid; }
-
-  QList<Node> nodeList;
-  Point centroid;
-  int ele_id;
-};
-
-struct BoundarySet
-{
-  int boundaryId;
-  QString type;
-  int location;
-};
-
 #endif
