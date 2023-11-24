@@ -1,5 +1,5 @@
 ## About
-A simple c++ snippet (first commit) to convert output file format from Qdyn (snaposhots) into an exodus format
+A simple c++ snippet (first commit) to convert output file format from Qdyn (snapshots) into an exodus format
 
 #### 1. Installation
 It is written based on Qt classes so you would need to have an QT installation locally. And, of course, you would need to have a local installation of the exodus library.
@@ -8,8 +8,9 @@ There'S an example of a Qt project file (*.pro and *.pri) where I link to libmes
 
 *Note: the "devel" branch of GOLEM is the "up-to-date" branch which is updated only if all tests are passing.*
 
-#### 4. test
-There is a test example (which I took from the only 3D tutorial from the Qdyn website). It is hardcoded, so once compiled, any launch of the executable will run it. Any user should modify the original source code to his/her needs. These are just a couple of changes in the main file:
+#### 4. test (still to be uploaded since qdyn snapshot file is really heavy)
+There is a test example (which I took from the only 3D tutorial from the Qdyn website). You can find it inside the test/tut_04/gold. It comes with a state file in paraview which you can use to create the movie you also find in the same repository.
+Caveat: It is hardcoded, so once compiled, any launch of the executable will run it. Any user should modify the original source code to his/her needs. These are just a couple of changes in the main file:
 * "_input_folder_name" --> a string poiting to the mother directory of the test you want to run
 * "_input_file_name"   --> a string poiting to the name of the qdyn snapshot you want to convert. Caveat: the original format from qdyn is not easily handling! Therefore, I require to reprocess the original file to create a well formatted csv file like in the example provided(I make it directly in the original qdyn python interface)
 * "_input_file_name_last" --> a string poiting to the name of the qdyn last snapshot you want to convert
@@ -25,3 +26,7 @@ Below the main assumptions/limitations/todos ...:
 * It works only for a single fault, this is mainly because I do not have any example so far with multiple fault segments (debugging level - easy)
 
 There might be some other points, which I cannnot recollect at the moment, but will add in case they show up in my mind.
+
+My personal todo list to anyone interested:
+* Convert the snippet into an instance of the output functionalities available in the utils in qdyn (easy)
+* Add the exporting routine inside the main code (medium and time consuming)
