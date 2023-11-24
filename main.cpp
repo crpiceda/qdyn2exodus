@@ -18,14 +18,18 @@ Helper _help;
 
 using namespace std;
 
-QString _input_folder_name = "test/tut_04/";
-QString _input_file_name_last = "output_ox_last";
-QString _input_file_name = "output_ox";
+QString _input_folder_name = "test/tut_04_unspacing/";
+QString _input_file_name = "output_ox_unspacing";
+QString _input_file_name_last = "output_ox_unspacing_last";
 
 QList<QString> _var_names;
+// this is the spacing in the intermediate snapshot output from qdyn
+unsigned int _nx_spacing = 2;
+unsigned int _nz_spacing = 2;
+// downsize the sampling in case it is required
+unsigned int _nx = 128 / _nx_spacing;
+unsigned int _nz = 128 / _nz_spacing;
 
-unsigned int _nx = 128;
-unsigned int _nz = 128;
 unsigned int _ntimes = 693;
 double _tyrs = 3600 * 24 * 365;
 
@@ -67,34 +71,42 @@ void setVar(int post, int posv, double *var, QString filename, bool is_final)
     QTextStream stream(&file);
     QString line;
     int count = 0;
-    // this is the strating position of the vector
+    // this is the starting position of the vector
     int spos = (post - 1) * exo.num_nodes;
     while (!stream.atEnd())
     {
       line = stream.readLine().simplified();
       if (count++ == (spos + 1)) // skip the header
       {
-        for (int i = 0; i < exo.num_nodes; i++)
-        {
-          QStringList list;
-          list = line.split(',');
-          QList<double> sen;
-          for (int j = 0; j < list.size(); j++)
-            if (j == 5)
-              sen.append(list.at(j).toDouble()); // velocity [m/s]
-            else if (j == 6)
-              sen.append(list.at(j).toDouble()); // state variable [s]
-            else if (j == 7)
-              sen.append(list.at(j).toDouble() * 1e-6); // shear stress [MPa]
-            else if (j == 8)
-              sen.append(list.at(j).toDouble() * 1e-6); // shear stress derivative [?!] [MPa/s]
-            else if (j == 9)
-              sen.append(list.at(j).toDouble()); // cumulative slip [m]
-            else if (j == 10)
-              sen.append(list.at(j).toDouble() * 1e-6); // normal stress [MPa]
-          var[i] = sen[posv];
-          line = stream.readLine().simplified();
-        }
+        // retrieve original spacing and dwonsample the file
+        int onz = _nz * _nz_spacing;
+        int onx = _nx * _nx_spacing;
+        unsigned int pos = 0;
+        for (int ix = 0; ix < onx; ix++)
+          for (int iz = 0; iz < onz; iz++)
+          {
+            if (ix % _nx_spacing == 0 && iz % _nz_spacing == 0)
+            {
+              QStringList list;
+              list = line.split(',');
+              QList<double> sen;
+              for (int j = 0; j < list.size(); j++)
+                if (j == 5)
+                  sen.append(list.at(j).toDouble()); // velocity [m/s]
+                else if (j == 6)
+                  sen.append(list.at(j).toDouble()); // state variable [s]
+                else if (j == 7)
+                  sen.append(list.at(j).toDouble() * 1e-6); // shear stress [MPa]
+                else if (j == 8)
+                  sen.append(list.at(j).toDouble() * 1e-6); // shear stress derivative [?!] [MPa/s]
+                else if (j == 9)
+                  sen.append(list.at(j).toDouble()); // cumulative slip [m]
+                else if (j == 10)
+                  sen.append(list.at(j).toDouble() * 1e-6); // normal stress [MPa]
+              var[pos++] = sen[posv];
+            }
+            line = stream.readLine().simplified();
+          }
         break;
       }
     }

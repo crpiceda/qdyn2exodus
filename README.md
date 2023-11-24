@@ -14,18 +14,20 @@ These are just a couple of changes in the main file:
 * "_input_folder_name" --> a string pointing to the mother directory of the test you want to run
 * "_input_file_name"   --> a string pointing to the name of the qdyn snapshot you want to convert
 Caveat: the original format from qdyn is not really handling! Therefore, I require the user to reprocess the original file to create a well formatted csv file like in the example provided (I make it directly in the original qdyn python interface)
-* "_input_file_name_last" --> a string pointing to the name of the qdyn last snapshot you want to convert
-* "_nx" --> (unsigned) int that provides the number of points along the x-fault axis
-* "_nz" --> (unsigned) int that provides the number of points along the z-fault axis
+* "_input_file_name_last" --> a string pointing to the name of the qdyn last snapshot you want to convert (this is native Qdyn)
+* "_nx" --> (unsigned) int that provides the number of points along strike on the fault
+* "_nz" --> (unsigned) int that provides the number of points along dip on the fault
+* "_nx_spacing" --> (unsigned) int that provides the downsampling along strike for the intermediate qdyn output
+* "_nz_spacing" --> (unsigned) int that provides the downsampling along dip for the intermediate qdyn output
 * "_ntimes" --> (unsigned) int that provides the number of time steps to convert
 Caveat: this last parameter I do not really need, and I only use it to output the percentage of the reading routine, so you can skip it by declaring off that console printing in the main file.
+Caveat: if the inermediate outputs are downsampled (one between "_nx_spacing" and "_nz_spacing" is not one), then I downsample the last output accordingly.
 
 ## Limitations
 As said, this is a fast and furious implementation. A lot of things could and should be improved. I will try to implement the output inside the main source of Qdyn (time is an issue here though...).
 Below the main assumptions/limitations/todos ...:
-* So far the export only works for 3D problems (2D faults) --> I do personally not see any reason to have an export for 1D faults though
-* It assume the same spatial rendering of the fault in the snapshots for each time steps as well as for the last one (debugging level - really easy)
-* It works only for single faults, this is mainly because I do not have any example so far with multiple fault segments (debugging level - easy)
+* It only works for 3D problems (2D faults) --> I do personally not see any reason to have an export for 1D faults though
+* It works only for single faults, this is mainly because I do not have any example so far with multiple fault segments (debugging level - easy to medium)
 
 There might be some other points, which I cannnot recollect at the moment, but will add in case they show up in my mind.
 
