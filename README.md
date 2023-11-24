@@ -1,12 +1,12 @@
 ## About
-A simple c++ snippet (first commit) to convert output files from Qdyn (format "snapshots") into exodusii format (to be visualize and handle i Paraview, Nemesis etc ...).
+A simple c++ snippet (first commit) to convert output files from Qdyn (format "snapshots") into exodusii format (to be visualize and handle in Paraview, Nemesis etc ...).
 
 #### 1. Installation
-The snippet is written in c++ na dit relies on basic Qt classes. So, you would need to have a QT installation locally. And, of course, you would need to have a local installation of the exodusii library.
+The snippet is written in c++ and it relies on basic Qt classes. So, you would need to have a QT installation locally. And, of course, you would need to have a local installation of the exodusii library.
 I added a template Qt project file (*.pro and *.pri) where I link to libmesh library and retrieve the exodus mesh library format from it (-lmesh).
 Caveat: there's no real need to install the full libmesh (relatively heavy) library package, but I use it quite a lot and it comes easy to me.
 
-#### 4. test (WARNING: the qdyn snapshot file (though untar) is really heavy and it can slow down the cloning)
+#### 4. test (WARNING: the qdyn snapshot file (though compressed) is really heavy and it can slow down the cloning)
 There is a test example (which I took from the only 3D tutorial from the Qdyn website). It comes with a Paraview state file to create the movie (all inside the test/tut_04/gold directory).
 Note: to run the test you would need first to untar the original qdyn snapshot file!
 Caveat: all is hardcoded, so once compiled, any launch of the executable will run the test. Any user should modify the original source code to his/her needs.
