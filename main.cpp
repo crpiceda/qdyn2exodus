@@ -18,14 +18,14 @@ Helper _help;
 
 using namespace std;
 
-QString _input_folder_name = "test/tut_04_unspacing/";
-QString _input_file_name = "output_ox_unspacing";
-QString _input_file_name_last = "output_ox_unspacing_last";
+QString _input_folder_name = "test/tut_04/";
+QString _input_file_name = "output_ox";
+QString _input_file_name_last = "output_ox";
 
 QList<QString> _var_names;
 // this is the spacing in the intermediate snapshot output from qdyn
-unsigned int _nx_spacing = 2;
-unsigned int _nz_spacing = 2;
+unsigned int _nx_spacing = 1;
+unsigned int _nz_spacing = 1;
 // downsize the sampling in case it is required
 unsigned int _nx = 128 / _nx_spacing;
 unsigned int _nz = 128 / _nz_spacing;
