@@ -1,10 +1,30 @@
-# This file is to provide system-dependent variables.
+TEMPLATE = app
+TARGET = qdyn2ex
+CONFIG += console
+CONFIG += warn_off
+CONFIG+= debug
+QT += widgets
 
-# By default the LIBMESH takes the environment variable LIBMESHDIR defined in compile.sh:
-#LIBMESH = $$(LIBMESHDIR)
+# Include system-dependent variables.
+include(qdyn2exodus.pri)
 
-# Alternatively, comment the line above and replace below the path to the root directory of a libmesh installation:
-LIBMESH= /home/mauro/projects/moose_libmesh/libmesh/installed
+INCLUDEPATH += .
+INCLUDEPATH += $$LIBMESH/include
+INCLUDEPATH += $$LIBMESH/include/libmesh
+INCLUDEPATH += /usr/lib/x86_64-linux-gnu/openmpi/include/
+INCLUDEPATH += /usr/lib/x86_64-linux-gnu/openmpi/include/openmpi
+# INCLUDEPATH += /usr/src/linux-oem-5.10-headers-5.10.0-1014/include/linux/
+LIBS += -L$$LIBMESH/lib
+LIBS += -L/usr/lib/x86_64-linux-gnu/openmpi/lib
+LIBS+= -lmpi
+LIBS += -lmesh_opt
+LIBS += -ldl
+LIBS += -lpthread
 
-# Example:
-#LIBMESH=/home/cacace/projects/moose/libmesh/installed
+QMAKE_LFLAGS += -Wl,--copy-dt-needed-entries,-rpath,$$LIBMESH/lib
+
+
+HEADERS += helper.h \
+           geometry.h
+
+SOURCES += main.cpp
