@@ -20,7 +20,7 @@ using namespace std;
 
 QString _input_folder_name = "test/tut_04/";
 QString _input_file_name = "output_ox";
-QString _input_file_name_last = "output_ox";
+QString _input_file_name_last = "output_ox_last";
 
 QList<QString> _var_names;
 // this is the spacing in the intermediate snapshot output from qdyn
