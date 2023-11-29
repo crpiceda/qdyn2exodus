@@ -18,19 +18,20 @@ Helper _help;
 
 using namespace std;
 
-QString _input_folder_name = "test/tut_04/";
-QString _input_file_name = "output_ox";
-QString _input_file_name_last = "output_ox_last";
+QString _input_folder_name = "test/tut_04_unspacing/";
+QString _input_file_name = "output_ox_unspacing";
+QString _input_file_name_last = "output_ox_unspacing_last";
+bool do_last = false;
 
-QList<QString> _var_names;
 // this is the spacing in the intermediate snapshot output from qdyn
-unsigned int _nx_spacing = 1;
-unsigned int _nz_spacing = 1;
+unsigned int _nx_spacing = 2;
+unsigned int _nz_spacing = 2;
 // downsize the sampling in case it is required
 unsigned int _nx = 128 / _nx_spacing;
 unsigned int _nz = 128 / _nz_spacing;
 
-unsigned int _ntimes = 693;
+unsigned int _ntimes = 692;
+bool _rel_t = false;
 double _tyrs = 3600 * 24 * 365;
 
 QList<Point> _coords;
@@ -38,13 +39,18 @@ QList<Point> _coords;
 unsigned int _running_timestep;
 QList<double> _times;
 QList<int> _tsteps;
+struct VAR
+{
+  QList<double> values;
+};
 
-QList<double> _v;
-QList<double> _theta;
-QList<double> _tau;
-QList<double> _tau_dot;
-QList<double> _slip;
-QList<double> _sigma;
+struct VARS
+{
+  QList<QString> name;
+  QList<VAR> values;
+};
+
+VARS _vars;
 
 struct EXODUS_II
 {
@@ -91,18 +97,7 @@ void setVar(int post, int posv, double *var, QString filename, bool is_final)
               list = line.split(',');
               QList<double> sen;
               for (int j = 0; j < list.size(); j++)
-                if (j == 5)
-                  sen.append(list.at(j).toDouble()); // velocity [m/s]
-                else if (j == 6)
-                  sen.append(list.at(j).toDouble()); // state variable [s]
-                else if (j == 7)
-                  sen.append(list.at(j).toDouble() * 1e-6); // shear stress [MPa]
-                else if (j == 8)
-                  sen.append(list.at(j).toDouble() * 1e-6); // shear stress derivative [?!] [MPa/s]
-                else if (j == 9)
-                  sen.append(list.at(j).toDouble()); // cumulative slip [m]
-                else if (j == 10)
-                  sen.append(list.at(j).toDouble() * 1e-6); // normal stress [MPa]
+                sen.append(list.at(j).toDouble());
               var[pos++] = sen[posv];
             }
             line = stream.readLine().simplified();
@@ -117,20 +112,7 @@ void setVar(int post, int posv, double *var, QString filename, bool is_final)
     // this is the starting position in the vector
     int spos = (post - 1) * exo.num_nodes;
     for (int i = 0; i < exo.num_nodes; i++)
-    {
-      if (posv == 0)
-        var[i] = _v[spos + i]; // velocity [m/s]
-      else if (posv == 1)
-        var[i] = _theta[spos + i]; // state variable [s]
-      else if (posv == 2)
-        var[i] = _tau[spos + i] * 1e-6; // shear stress [MPa]
-      else if (posv == 3)
-        var[i] = _tau_dot[spos + i] * 1e-6; // shear shear time derivative (?!) [Mpa/s]
-      else if (posv == 4)
-        var[i] = _slip[spos + i]; // cumulative slip [m]
-      else if (posv == 5)
-        var[i] = _sigma[spos + i] * 1e-6; // normal stress [MPa]
-    }
+      var[i] = _vars.values[spos + i].values[posv];
   }
 }
 
@@ -147,7 +129,7 @@ void appendExodus(double time, bool is_final)
     _help.printError("could not open file[" + exo.file_name +
                      "] to append timestep information ... aborting.");
   // append time
-  error = ex_put_time(exoid, _running_timestep, &time);
+  error = ex_put_time(exoid, _running_timestep + 1, &time);
   // append field variable
   for (int i = 0; i < exo.num_vars; i++)
   {
@@ -155,8 +137,8 @@ void appendExodus(double time, bool is_final)
     if (is_final)
       setVar(1, i, var, _input_folder_name + _input_file_name_last + ".csv", is_final);
     else
-      setVar(_running_timestep, i, var, _input_folder_name + _input_file_name + ".csv", is_final);
-    error = ex_put_var(exoid, _running_timestep, EX_NODE_BLOCK, i + 1, exo.id, exo.num_nodes, var);
+      setVar(_running_timestep + 1, i, var, _input_folder_name + _input_file_name + ".csv", is_final);
+    error = ex_put_var(exoid, _running_timestep + 1, EX_NODE_BLOCK, i + 1, exo.id, exo.num_nodes, var);
     free(var);
   }
   // update the instance
@@ -222,13 +204,13 @@ void createExodus()
   error = ex_put_block(exoid, EX_ELEM_BLOCK, exo.id, ele_type.toLatin1().data(), exo.num_elem, exo.num_nodes_per_elem, 0, 0, 0);
   //  append element connectivities
   connect = (int *)calloc(exo.num_elem * exo.num_nodes_per_elem, sizeof(int));
-  for (int i = 0; i < _nz - 1; i++)
-    for (int j = 0; j < _nx - 1; j++)
+  for (int i = 0; i < _nx - 1; i++)
+    for (int j = 0; j < _nz - 1; j++)
     {
-      int n1 = (i + j * _nz);
-      int n2 = (i + 1) + j * _nz;
-      int n3 = (i + 1) + (j + 1) * _nz;
-      int n4 = i + (j + 1) * _nz;
+      int n1 = i + j * _nx;
+      int n2 = (i + 1) + j * _nx;
+      int n3 = (i + 1) + (j + 1) * _nx;
+      int n4 = i + (j + 1) * _nx;
       exo.conn.append(n1 + 1);
       exo.conn.append(n2 + 1);
       exo.conn.append(n3 + 1);
@@ -239,10 +221,10 @@ void createExodus()
   error = ex_put_conn(exoid, EX_ELEM_BLOCK, exo.id, connect, NULL, NULL);
   free(connect);
   // append field variables name
-  exo.num_vars = _var_names.size();
+  exo.num_vars = _vars.name.size();
   error = ex_put_variable_param(exoid, EX_NODE_BLOCK, exo.num_vars);
   for (int i = 0; i < exo.num_vars; i++)
-    error = ex_put_variable_name(exoid, EX_NODE_BLOCK, i + 1, _var_names[i].toLatin1().data());
+    error = ex_put_variable_name(exoid, EX_NODE_BLOCK, i + 1, _vars.name[i].toLatin1().data());
   //  append truth table for field variables
   truth_tab = (int *)calloc(exo.num_vars, sizeof(int));
   for (int i = 0; i < exo.num_vars; i++)
@@ -251,15 +233,15 @@ void createExodus()
   free(truth_tab);
   // append time
   double time_value = _times.first();
-  // this is the first hit (start at 1)
-  _running_timestep = 1;
-  error = ex_put_time(exoid, _running_timestep, &time_value);
+  // this is the first hit (it should start at 1)
+  _running_timestep = 0;
+  error = ex_put_time(exoid, _running_timestep + 1, &time_value);
   // append field variables
   for (int i = 0; i < exo.num_vars; i++)
   {
     var = (double *)calloc(exo.num_nodes, CPU_word_size);
-    setVar(_running_timestep, i, var, _input_folder_name + _input_file_name + ".csv", false);
-    error = ex_put_var(exoid, _running_timestep, EX_NODE_BLOCK, i + 1, exo.id, exo.num_nodes, var);
+    setVar(_running_timestep + 1, i, var, _input_folder_name + _input_file_name + ".csv", false);
+    error = ex_put_var(exoid, _running_timestep + 1, EX_NODE_BLOCK, i + 1, exo.id, exo.num_nodes, var);
     free(var);
   }
   // update the instance
@@ -280,6 +262,9 @@ void readInput(QString filename)
   unsigned int count = 0;
   unsigned int local_count = 0;
   QStringList sl;
+  unsigned int post;
+  int posts = -1;
+  unsigned int posx, posy, posz;
   while (!stream.atEnd())
   {
     count++;
@@ -288,41 +273,57 @@ void readInput(QString filename)
     {
       sl = line.split(',');
       for (int i = 0; i < sl.size(); i++)
-        if (sl.at(i) != "x" && sl.at(i) != "y" && sl.at(i) != "z" &&
-            sl.at(i) != "step" && sl.at(i) != "t" && sl.at(i) != "fault_id")
-          _var_names.append(sl.at(i));
+      {
+        _vars.name.append(sl.at(i));
+        if (sl.at(i) == "t")
+          post = i;
+        if (sl.at(i) == "step")
+          posts = i;
+        if (sl.at(i) == "x")
+          posx = i;
+        if (sl.at(i) == "y")
+          posy = i;
+        if (sl.at(i) == "z")
+          posz = i;
+      }
     }
     else // fill in the var values
     {
       // read in coordinates - only once per time step
       if (count < (_nx * _nz) + 2)
       {
-        Point pt(line.section(",", 2, 2).toDouble(), line.section(",", 3, 3).toDouble(), line.section(",", 4, 4).toDouble());
+        Point pt(line.section(",", posx, posx).toDouble(), line.section(",", posy, posy).toDouble(), line.section(",", posz, posz).toDouble());
         _coords.append(pt);
       }
-      // fill in timesteps and times (sanitized)
-      if (_tsteps.isEmpty())
-        _tsteps.append(line.section(",", 0, 0).toInt());
-      else if (line.section(",", 0, 0).toInt() != _tsteps.last())
-        _tsteps.append(line.section(",", 0, 0).toInt());
-      // fill in times
+      // fill in times and timesteps (sanitized)
       if (_times.isEmpty())
-        _times.append(line.section(",", 1, 1).toDouble() / _tyrs);
-      else if (line.section(",", 1, 1).toDouble() / _tyrs != _times.last())
-        _times.append(line.section(",", 1, 1).toDouble() / _tyrs);
+      {
+        _times.append(line.section(",", post, post).toDouble() / _tyrs);
+        _tsteps.append(_times.size() - 1);
+      }
+      else if (line.section(",", post, post).toDouble() / _tyrs != _times.last())
+      {
+        _times.append(line.section(",", post, post).toDouble() / _tyrs);
+        _tsteps.append(_times.size() - 1);
+      }
       // fill in variables (all but the last)
-      _v.append(line.section(",", 5, 5).toDouble());
-      _theta.append(line.section(",", 6, 6).toDouble());
-      _tau.append(line.section(",", 7, 7).toDouble());
-      _tau_dot.append(line.section(",", 8, 8).toDouble());
-      _slip.append(line.section(",", 9, 9).toDouble());
-      _sigma.append(line.section(",", 10, 10).toDouble());
+      sl = line.split(',');
+      VAR vv;
+      for (int i = 0; i < sl.size(); i++)
+        vv.values.append(sl.at(i).toDouble());
+      _vars.values.append(vv);
       local_count++;
       double percentage = (100.0 * local_count) / (_nx * _nz * _ntimes);
       _help.printStatus("reading in " + QString::number(percentage, 'g', 3) + "% of the total data ...");
     }
   }
   file.close();
+  if (_rel_t)
+  {
+    double tn = _times[0];
+    for (int i = 0; i < _times.size(); i++)
+      _times[i] /= tn;
+  }
 }
 
 int main(int argc, char *argv[])
@@ -330,21 +331,23 @@ int main(int argc, char *argv[])
   QString usage = "\nUsage: qdyn2ex\n\n";
   QString str;
   QCoreApplication app(argc, argv);
-  _help.printInfo("start reading in qdyn output files ...");
+  _help.printInfo("\nstart reading in qdyn output files ...");
   readInput(_input_folder_name + _input_file_name + ".csv");
   _help.printInfo("\ncreating the first instance of the exodus class ...");
   createExodus();
-  _help.printInfo("filling in the exodus instance at time steps ... ");
-  for (int i = 0; i < _tsteps.size() - 1; i++)
+  _help.printInfo("\nfilling in the exodus instance at time steps ... ");
+  for (int i = 0; i < _tsteps.size(); i++)
   {
     _help.printStatus("doing time step " + QString::number(_running_timestep + 1) + " out of " + QString::number(_tsteps.size()));
-    _running_timestep++;
     appendExodus(_times[i], false);
+    _running_timestep++;
   }
-  _help.printInfo("\nadd last time step ...");
-  // update the last one
-  appendExodus(_times.last(), true);
-  _help.printInfo("export completed!");
+  if (do_last)
+  {
+    _help.printInfo("\nadd last time step ...");
+    appendExodus(_times.last(), true);
+  }
+  _help.printInfo("\nexport completed!");
   QTimer::singleShot(0, []()
                      { QCoreApplication::exit(0); });
   return app.exec();
