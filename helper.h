@@ -3,6 +3,10 @@
 
 #include <QDebug>
 #include <QTextStream>
+#include <iostream>
+
+
+using namespace std;
 
 struct Helper
 {

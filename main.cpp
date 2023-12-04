@@ -18,8 +18,9 @@ Helper _help;
 
 using namespace std;
 
-QString _input_folder_name = "test/tut_04_unspacing/";
-QString _input_file_name = "output_ox_unspacing";
+QString _input_folder_name = "test_sa/data";
+QString _input_file_name = "f1";
+//  commented the next two lines because there is no last snapshot
 QString _input_file_name_last = "output_ox_unspacing_last";
 bool do_last = false;
 
@@ -342,11 +343,12 @@ int main(int argc, char *argv[])
     appendExodus(_times[i], false);
     _running_timestep++;
   }
-  if (do_last)
-  {
-    _help.printInfo("\nadd last time step ...");
-    appendExodus(_times.last(), true);
-  }
+  // commentted out this statement because there is no last snapshot
+  // if (do_last)
+  // {
+  //   _help.printInfo("\nadd last time step ...");
+  //   appendExodus(_times.last(), true);
+  // }
   _help.printInfo("\nexport completed!");
   QTimer::singleShot(0, []()
                      { QCoreApplication::exit(0); });
