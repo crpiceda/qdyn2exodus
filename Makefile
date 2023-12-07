@@ -17,7 +17,7 @@ CXX           = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefau
 DEFINES       = -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5 -w $(DEFINES)
 CXXFLAGS      = -pipe -stdlib=libc++ -g -std=gnu++1z $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5 -w $(DEFINES)
-INCPATH       = -I. -I. -I../../mambaforge3/envs/moose/libmesh/include -I../../mambaforge3/envs/moose/libmesh/include/libmesh -I../../mambaforge3/envs/moose/include -I../../Qt/6.6.1/macos/lib/QtWidgets.framework/Headers -I../../Qt/6.6.1/macos/lib/QtGui.framework/Headers -I../../Qt/6.6.1/macos/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/OpenGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/AGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/OpenGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/AGL.framework/Headers -I../../Qt/6.6.1/macos/mkspecs/macx-clang -F/Users/crpiceda/Qt/6.6.1/macos/lib
+INCPATH       = -I. -I. -I../../libmesh/libmesh/installed/include -I../../libmesh/libmesh/installed/include/libmesh -I/usr/local/Cellar/open-mpi/4.1.5/include -I/usr/local/Cellar/open-mpi/4.1.5/include/openmpi -I../../Qt/6.6.1/macos/lib/QtWidgets.framework/Headers -I../../Qt/6.6.1/macos/lib/QtGui.framework/Headers -I../../Qt/6.6.1/macos/lib/QtCore.framework/Headers -I. -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/OpenGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/AGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/OpenGL.framework/Headers -I/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk/System/Library/Frameworks/AGL.framework/Headers -I../../Qt/6.6.1/macos/mkspecs/macx-clang -F/Users/crpiceda/Qt/6.6.1/macos/lib
 QMAKE         = /Users/crpiceda/Qt/6.6.1/macos/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -39,8 +39,8 @@ COMPRESS      = gzip -9f
 DISTNAME      = qdyn2ex1.0.0
 DISTDIR = /Users/crpiceda/qdyn2exodus/qdyn2exodus/.tmp/qdyn2ex1.0.0
 LINK          = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++
-LFLAGS        = -stdlib=libc++ -Wl,--copy-dt-needed-entries,-rpath,/Users/crpiceda/mambaforge3/envs/moose/libmesh/lib -headerpad_max_install_names $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5 -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,/Users/crpiceda/Qt/6.6.1/macos/lib
-LIBS          = $(SUBLIBS) -F/Users/crpiceda/Qt/6.6.1/macos/lib -L/Users/crpiceda/mambaforge3/envs/moose/libmesh/lib -L/usr/lib/x86_64-linux-gnu/openmpi/lib -lmpi -lmesh_opt -ldl -lpthread -framework QtWidgets -framework QtGui -framework AppKit -framework ImageIO -framework Metal -framework QtCore -framework IOKit -framework DiskArbitration -framework AGL -framework OpenGL   
+LFLAGS        = -stdlib=libc++ -Wl,--copy-dt-needed-entries,-rpath,/Users/crpiceda/libmesh/libmesh/installed/lib -headerpad_max_install_names $(EXPORT_ARCH_ARGS) -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.0.sdk -mmacosx-version-min=13.5 -Wl,-rpath,@executable_path/../Frameworks -Wl,-rpath,/Users/crpiceda/Qt/6.6.1/macos/lib
+LIBS          = $(SUBLIBS) -F/Users/crpiceda/Qt/6.6.1/macos/lib -L/Users/crpiceda/libmesh/libmesh/installed/lib -L/usr/local/Cellar/open-mpi/4.1.5/lib -lmpi -lmesh_opt -ldl -lpthread -framework QtWidgets -framework QtGui -framework AppKit -framework ImageIO -framework Metal -framework QtCore -framework IOKit -framework DiskArbitration -framework AGL -framework OpenGL   
 AR            = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar cq
 RANLIB        = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib -s
 SED           = sed
@@ -887,16 +887,9 @@ main.o: main.cpp ../../Qt/6.6.1/macos/lib/QtCore.framework/Headers/QTimer \
 		../../Qt/6.6.1/macos/lib/QtCore.framework/Headers/qwineventnotifier.h \
 		../../Qt/6.6.1/macos/lib/QtCore.framework/Headers/qxmlstream.h \
 		../../Qt/6.6.1/macos/lib/QtCore.framework/Headers/qxpfunctional.h \
-		../../mambaforge3/envs/moose/libmesh/include/libmesh/exodusII.h \
-		../../mambaforge3/envs/moose/libmesh/include/libmesh/exodus_config.h \
-		../../mambaforge3/envs/moose/libmesh/include/netcdf.h \
-		../../mambaforge3/envs/moose/libmesh/include/netcdf_meta.h \
-		../../mambaforge3/envs/moose/libmesh/include/netcdf_par.h \
-		../../mambaforge3/envs/moose/include/mpi.h \
-		../../mambaforge3/envs/moose/include/mpi_proto.h \
-		../../mambaforge3/envs/moose/include/mpio.h \
-		../../mambaforge3/envs/moose/include/mpicxx.h \
-		../../mambaforge3/envs/moose/include/omp.h \
+		../../libmesh/libmesh/installed/include/libmesh/exodusII.h \
+		../../libmesh/libmesh/installed/include/netcdf.h \
+		/usr/local/opt/libomp/include/omp.h \
 		helper.h \
 		../../Qt/6.6.1/macos/lib/QtCore.framework/Headers/QDebug \
 		../../Qt/6.6.1/macos/lib/QtCore.framework/Headers/QTextStream \

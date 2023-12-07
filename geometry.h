@@ -4,7 +4,8 @@
 #include "QtCore"
 
 #include <iostream>
-#include <omp.h>
+// #include <omp.h>
+#include "/usr/local/opt/libomp/include/omp.h"
 
 using namespace std;
 

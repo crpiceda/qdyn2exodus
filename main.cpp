@@ -9,7 +9,8 @@
 #include "exodusII.h"
 
 #include <iostream>
-#include <omp.h>
+//#include <omp.h>
+#include "/usr/local/opt/libomp/include/omp.h" //had to declare the path in mac
 
 #include "helper.h"
 #include "geometry.h"
