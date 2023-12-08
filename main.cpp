@@ -19,7 +19,8 @@ Helper _help;
 
 using namespace std;
 
-QString _input_folder_name = "test_sa/data";
+// QString _input_folder_name = "test_sa/data/";
+QString _input_folder_name = "../../../test_sa/data/";
 QString _input_file_name = "f1";
 //  commented the next two lines because there is no last snapshot
 QString _input_file_name_last = "output_ox_unspacing_last";
